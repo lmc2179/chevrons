@@ -3,9 +3,9 @@ class PipelineFunction(object):
         return self.run(other)
 
     def __rshift__(self, other): # This function is composed with other
-        fxn = lambda x: other.run(self.run(x))
+        inner_fxn = lambda x: other.run(self.run(x))
         F = PipelineFunction()
-        F.run = fxn
+        F.run = inner_fxn
         return F
 
     def __call__(self, *args, **kwargs):
