@@ -1,6 +1,7 @@
 import unittest
 import pipeline
 import numpy as np
+import functools
 
 class Square(pipeline.PipelineFunction):
     def run(self, input_data):
@@ -34,3 +35,18 @@ class SyntaxTest(unittest.TestCase):
 
     def test_iterator_function(self):
         assert list([1,2] | SquareElements() >> SquareElements()  >> AddOneToElements()) == [2,17]
+
+class ConvertToVector(pipeline.IteratorFunction):
+    def _process_element(self, element):
+        return np.array([int(element['COL_1']), int(element['COL_2'])])
+
+class SumVectors(pipeline.ReduceFunction):
+    def reduction_function(self, input_1, input_2):
+        return input_1 + input_2
+
+class UseCaseTest(unittest.TestCase):
+    def test_end_to_end(self):
+        import csv
+        input_file = csv.DictReader(open('test_data.csv'))
+        run_data_pipeline = ConvertToVector() >> SumVectors()
+        run_data_pipeline(input_file) == [4, 6]
