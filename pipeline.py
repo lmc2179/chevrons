@@ -8,8 +8,15 @@ class PipelineFunction(object):
         F.run = inner_fxn
         return F
 
-    def __call__(self, *args, **kwargs):
-        return self.run(*args, **kwargs)
+    def __call__(self, input_data):
+        return self.run(input_data)
 
-    def run(self, *args, **kwargs):
+    def run(self, input_data):
+        raise NotImplementedError
+
+class IteratorFunction(PipelineFunction):
+    def run(self, input_data):
+        return (self._process_element(element) for element in input_data)
+
+    def _process_element(self, element):
         raise NotImplementedError
