@@ -1,6 +1,8 @@
 # chevrons `>>`
 
-![travis](https://travis-ci.org/lmc2179/chevrons.svg?branch=master)
+[![travis](https://travis-ci.org/lmc2179/chevrons.svg?branch=master)](https://travis-ci.org/lmc2179/chevrons)
+
+
 
 Rapidly build pipelines for out-of-core data processing using higher order functions.
 
