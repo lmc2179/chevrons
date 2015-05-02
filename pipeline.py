@@ -26,12 +26,13 @@ class Map(Processor):
         return (self.function(element) for element in input_data)
 
 class MapParallel(Processor):
-    def __init__(self, function, n_cores=None):
+    def __init__(self, function, n_cores=None, batch_size=1):
         self.function = function
         self.pool = Pool(processes=n_cores)
+        self.batch_size = batch_size
 
     def run(self, input_data):
-        return self.pool.imap(self.function, input_data)
+        return self.pool.imap(self.function, input_data, chunksize=self.batch_size)
 
 class Fold(object):
     def run(self, input_data):
