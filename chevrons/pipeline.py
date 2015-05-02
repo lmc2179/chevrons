@@ -1,5 +1,4 @@
 from multiprocessing import Pool
-import dill
 import functools
 
 class Processor(object):
