@@ -1,26 +1,21 @@
 import unittest
-import pipeline
+from pipeline import Map, Fold, Processor, MapParallel
 import numpy as np
 import functools
 
-class Square(pipeline.PipelineFunction):
+class Square(Processor):
     def run(self, input_data):
-        print('Square', input_data)
         return input_data ** 2
 
-class AddOne(pipeline.PipelineFunction):
+class AddOne(Processor):
     def run(self, input_data):
-        print('AddOne', input_data)
         return input_data + 1
 
-class SquareElements(pipeline.IteratorFunction):
-    def _process_element(self, element):
-        return element ** 2
+def square(x):
+        return x ** 2
 
-class AddOneToElements(pipeline.IteratorFunction):
-    def _process_element(self, element):
-        return element + 1
-
+def add_one(x):
+    return x+1
 
 class SyntaxTest(unittest.TestCase):
     def test_pipe(self):
@@ -33,20 +28,21 @@ class SyntaxTest(unittest.TestCase):
     def test_pipe_and_shift(self):
         assert (2 | Square() >> Square() >> AddOne()) == 17
 
-    def test_iterator_function(self):
-        assert list([1,2] | SquareElements() >> SquareElements()  >> AddOneToElements()) == [2,17]
+    def test_map(self):
+        assert list([1,2] | Map(square) >> Map(square)  >> Map(add_one)) == [2,17]
 
-class ConvertToVector(pipeline.IteratorFunction):
-    def _process_element(self, element):
+    def test_imap(self):
+        assert list([1,2] | MapParallel(square) >> MapParallel(square)  >> MapParallel(add_one)) == [2,17]
+
+def parse_row( element):
         return np.array([int(element['COL_1']), int(element['COL_2'])])
 
-class SumVectors(pipeline.ReduceFunction):
-    def reduction_function(self, input_1, input_2):
+def sum_vectors(input_1, input_2):
         return input_1 + input_2
 
 class UseCaseTest(unittest.TestCase):
     def test_end_to_end(self):
         import csv
         input_file = csv.DictReader(open('test_data.csv'))
-        run_data_pipeline = ConvertToVector() >> SumVectors()
+        run_data_pipeline = Map(parse_row) >> Map(sum_vectors)
         run_data_pipeline(input_file) == [4, 6]
