@@ -11,6 +11,11 @@ class AddOne(Processor):
     def run(self, input_data):
         return input_data + 1
 
+class SwapInputs(Processor):
+    def run(self, input_data):
+        a,b = input_data
+        return b,a
+
 def square(x):
         return x ** 2
 
@@ -27,6 +32,9 @@ class SyntaxTest(unittest.TestCase):
 
     def test_pipe_and_shift(self):
         assert (2 | Square() >> Square() >> AddOne()) == 17
+
+    def test_multiple_input(self):
+        assert ((1,2) | SwapInputs()) == (2,1)
 
     def test_map(self):
         assert list([1,2] | Map(square) >> Map(square)  >> Map(add_one)) == [2,17]
