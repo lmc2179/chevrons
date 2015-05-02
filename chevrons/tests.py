@@ -1,5 +1,6 @@
 import unittest
 from pipeline import Map, Fold, Processor, MapParallel
+import datetime
 import numpy as np
 import functools
 
@@ -22,6 +23,14 @@ def square(x):
 def add_one(x):
     return x+1
 
+def infinite_generator():
+    while True:
+        yield 1
+
+def time_consuming_function(x):
+    "A costly function which takes a float and returns the same float. Used for testing efficiency of parallelism."
+    return float(str(float(str(float(str(float(str(x))))))))
+
 class SyntaxTest(unittest.TestCase):
     def test_pipe(self):
         assert (2 | Square()) == 4
@@ -41,6 +50,25 @@ class SyntaxTest(unittest.TestCase):
 
     def test_imap(self):
         assert list([1,2] | MapParallel(square) >> MapParallel(square)  >> MapParallel(add_one)) == [2,17]
+
+    def test_map_infinite(self):
+        data = infinite_generator()
+        output_stream = data | Map(square) >> MapParallel(square)
+        assert next(output_stream) == 1
+
+    def test_map_parallel_speed(self):
+        test_data_size = 100000
+        data1,data2 = range(test_data_size),range(test_data_size)
+        begin = datetime.datetime.now()
+        output = data1 | Map(time_consuming_function)
+        list(output)
+        single_thread_time = datetime.datetime.now() - begin
+        begin = datetime.datetime.now()
+        output = data1 | MapParallel(time_consuming_function, batch_size=5000)
+        list(output)
+        multi_thread_time = datetime.datetime.now() - begin
+        assert multi_thread_time < single_thread_time
+
 
 def parse_row( element):
         return np.array([int(element['COL_1']), int(element['COL_2'])])
