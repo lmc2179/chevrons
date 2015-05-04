@@ -1,6 +1,8 @@
 import unittest
 import datetime
-from pipeline import Map, MapParallel
+from pipeline_base import MapParallel
+from pipeline_hof import Map, MapParallel
+
 
 def time_consuming_function(x):
     "A costly function which takes a float and returns the same float. Used for testing efficiency of parallelism."

@@ -1,5 +1,6 @@
 import unittest
-from pipeline import Map, Filter, Processor, MapParallel, SerialBatchProcessor, ParallelBatchProcessor, FilterParallel
+from pipeline_base import Processor, SerialBatchProcessor, ParallelBatchProcessor
+from pipeline_hof import FilterParallel, Filter, Map, MapParallel
 import numpy as np
 
 class Square(Processor):
@@ -88,7 +89,6 @@ class FunctionTest(unittest.TestCase):
 
     def test_filter(self):
         data = range(0,10)
-        is_even = lambda x: x%2==0
         output = data | Filter(is_even)
         assert list(output) == [0,2,4,6,8]
 
@@ -102,7 +102,7 @@ class FunctionTest(unittest.TestCase):
         is_odd = lambda x: x%2==1
         output = data | Filter(is_odd)
         assert next(output) == 1
-    #
+
     def test_filter_parallel_infinite(self):
         data = infinite_generator()
         output = data | FilterParallel(is_odd)
