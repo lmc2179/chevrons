@@ -1,5 +1,5 @@
 import unittest
-from pipeline import Map, Fold, Processor, MapParallel
+from pipeline import Map, Fold, Processor, MapParallel, BatchProcessor
 import datetime
 import numpy as np
 import functools
@@ -16,6 +16,10 @@ class SwapInputs(Processor):
     def run(self, input_data):
         a,b = input_data
         return b,a
+
+class AddOneBatch(BatchProcessor):
+    def _process_batch(self, input_batch):
+        return [add_one(i) for i in input_batch]
 
 def square(x):
         return x ** 2
@@ -69,6 +73,16 @@ class SyntaxTest(unittest.TestCase):
         multi_thread_time = datetime.datetime.now() - begin
         assert multi_thread_time < single_thread_time
 
+    def test_batch_process(self):
+        import itertools
+        data = itertools.islice(infinite_generator(),0,1000)
+        output = data | AddOneBatch(100) >> AddOneBatch(100)
+        assert len(list(output)) == 1000
+
+    def test_batch_process_infinite(self):
+        data = infinite_generator()
+        output = data | AddOneBatch(100) >> AddOneBatch(100)
+        assert next(output) == 3
 
 def parse_row( element):
         return np.array([int(element['COL_1']), int(element['COL_2'])])
