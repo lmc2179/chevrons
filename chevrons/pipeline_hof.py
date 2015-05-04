@@ -28,15 +28,18 @@ class Filter(Processor):
 
 
 class Fold(Processor):
+    def __init__(self, function):
+        self.function = function
+
     def run(self, input_data):
-        x = next(input_data)
-        for element in input_data:
-            x = self.reduction_function(x, element)
+        input_iter = iter(input_data)
+        x = next(input_iter)
+        for element in input_iter:
+            x = self.function(x, element)
         return x
 
-    def reduction_function(self, input_1, input_2):
-        raise NotImplementedError
-
+class FoldParallel(ParallelBatchProcessor):
+    pass
 
 class Map(Processor):
     def __init__(self, function):

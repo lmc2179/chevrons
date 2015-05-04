@@ -1,6 +1,6 @@
 import unittest
 from pipeline_base import Processor, SerialBatchProcessor, ParallelBatchProcessor
-from pipeline_hof import FilterParallel, Filter, Map, MapParallel
+from pipeline_hof import FilterParallel, Filter, Map, MapParallel, Fold, FoldParallel
 import numpy as np
 
 class Square(Processor):
@@ -53,18 +53,7 @@ class SyntaxTest(unittest.TestCase):
     def test_multiple_input(self):
         assert ((1,2) | SwapInputs()) == (2,1)
 
-class FunctionTest(unittest.TestCase):
-    def test_map(self):
-        assert list([1,2] | Map(square) >> Map(square)  >> Map(add_one)) == [2,17]
-
-    def test_imap(self):
-        assert list([1,2] | MapParallel(square) >> MapParallel(square)  >> MapParallel(add_one)) == [2,17]
-
-    def test_map_infinite(self):
-        data = infinite_generator()
-        output_stream = data | Map(square) >> MapParallel(square)
-        assert next(output_stream) == 1
-
+class BaseComponentTest(unittest.TestCase):
     def test_batch_process(self):
         import itertools
         data = itertools.islice(infinite_generator(),0,1000)
@@ -87,6 +76,18 @@ class FunctionTest(unittest.TestCase):
         output = data | ParallelBatchProcessor(add_one_batch) >> ParallelBatchProcessor(add_one_batch)
         assert next(output) == 3
 
+class HigherOrderFunctionTest(unittest.TestCase):
+    def test_map(self):
+        assert list([1,2] | Map(square) >> Map(square)  >> Map(add_one)) == [2,17]
+
+    def test_imap(self):
+        assert list([1,2] | MapParallel(square) >> MapParallel(square)  >> MapParallel(add_one)) == [2,17]
+
+    def test_map_infinite(self):
+        data = infinite_generator()
+        output_stream = data | Map(square) >> MapParallel(square)
+        assert next(output_stream) == 1
+
     def test_filter(self):
         data = range(0,10)
         output = data | Filter(is_even)
@@ -107,6 +108,11 @@ class FunctionTest(unittest.TestCase):
         data = infinite_generator()
         output = data | FilterParallel(is_odd)
         assert next(output) == 1
+
+    def test_fold(self):
+        data = [0,1,2,3]
+        output = data | Fold(lambda x1,x2:x1+x2)
+        assert output == 6
 
 def parse_row( element):
         return np.array([int(element['COL_1']), int(element['COL_2'])])
