@@ -1,5 +1,5 @@
 import unittest
-from pipeline import Map, Fold, Processor, MapParallel, SerialBatchProcessor#, ParallelBatchProcessor
+from pipeline import Map, Filter, Processor, MapParallel, SerialBatchProcessor, ParallelBatchProcessor, FilterParallel
 import numpy as np
 
 class Square(Processor):
@@ -24,6 +24,12 @@ def square(x):
 
 def add_one(x):
     return x+1
+
+def is_even(x):
+    return x%2==0
+
+def is_odd(x):
+    return x%2==1
 
 def add_one_batch(batch):
     return [x+1 for x in batch]
@@ -69,16 +75,38 @@ class FunctionTest(unittest.TestCase):
         output = data | AddOneSerialBatch(100) >> AddOneSerialBatch(100)
         assert next(output) == 3
 
-    # def test_batch_process_parallel(self):
-    #     import itertools
-    #     data = itertools.islice(infinite_generator(),0,1000)
-    #     output = data | ParallelBatchProcessor(add_one_batch) >> ParallelBatchProcessor(add_one_batch)
-    #     assert len(list(output)) == 1000
+    def test_batch_process_parallel(self):
+        import itertools
+        data = itertools.islice(infinite_generator(),0,1000)
+        output = data | ParallelBatchProcessor(add_one_batch) >> ParallelBatchProcessor(add_one_batch)
+        assert len(list(output)) == 1000
+
+    def test_batch_process_parallel_infinite(self):
+        data = infinite_generator()
+        output = data | ParallelBatchProcessor(add_one_batch) >> ParallelBatchProcessor(add_one_batch)
+        assert next(output) == 3
+
+    def test_filter(self):
+        data = range(0,10)
+        is_even = lambda x: x%2==0
+        output = data | Filter(is_even)
+        assert list(output) == [0,2,4,6,8]
+
+    def test_filter_parallel(self):
+        data = [0,1,2,3,4,5,6,7,8,9]
+        output = data | FilterParallel(is_even, batch_size=2)
+        assert list(output) == [0,2,4,6,8]
+
+    def test_filter_infinite(self):
+        data = infinite_generator()
+        is_odd = lambda x: x%2==1
+        output = data | Filter(is_odd)
+        assert next(output) == 1
     #
-    # def test_batch_process_parallel_infinite(self):
-    #     data = infinite_generator()
-    #     output = data | ParallelBatchProcessor(add_one_batch) >> ParallelBatchProcessor(add_one_batch)
-    #     assert next(output) == 3
+    def test_filter_parallel_infinite(self):
+        data = infinite_generator()
+        output = data | FilterParallel(is_odd)
+        assert next(output) == 1
 
 def parse_row( element):
         return np.array([int(element['COL_1']), int(element['COL_2'])])
