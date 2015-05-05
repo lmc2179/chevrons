@@ -1,10 +1,10 @@
+import sys
+sys.path.append('..')
 import unittest
 from pipeline_base import PipelineBlock, SerialBatchProcessorBlock
 from pipeline_hof import Filter, Map, Fold
 from pipeline_parallel import FilterParallel, FoldParallel, MapParallel, ParallelBatchProcessorBlock
 from pipeline_extra import TrainScikitModel
-import sys
-sys.path.append('..')
 import numpy as np
 
 class Square(PipelineBlock):
