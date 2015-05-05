@@ -64,4 +64,4 @@ X | generate_synthetic_data >> TrainScikitModel(model, batch_size=100)
 
 #Contact
 
-I'd love to hear any feedback you have, or ideas for features you think would be interesting! Send me an email at louiscialdella@gmail.com if you'd like to let me know of your happiness/displeasure/vexation.
+I'd love to hear any feedback you have, or ideas for features you think would be interesting! Send me an email at louiscialdella@gmail.com if you'd like to let me know of your happiness/displeasure/exuberance/vexation.
