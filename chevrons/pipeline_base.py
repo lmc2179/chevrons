@@ -1,4 +1,3 @@
-from multiprocessing import Pool
 import itertools
 
 class Processor(object):
@@ -51,14 +50,5 @@ class AbstractBatchProcessor(Processor):
 class SerialBatchProcessor(AbstractBatchProcessor):
     def _get_batch_transformation(self, batches):
         return (self._process_batch(b) for b in batches)
-
-class ParallelBatchProcessor(AbstractBatchProcessor):
-    def __init__(self, function, batch_size=1, n_process=None):
-        super(ParallelBatchProcessor, self).__init__(batch_size)
-        self.pool = Pool(processes=n_process)
-        self.function = function
-
-    def _get_batch_transformation(self, batches):
-        return self.pool.imap(self.function, batches, chunksize=self.batch_size)
 
 

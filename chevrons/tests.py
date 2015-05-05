@@ -1,6 +1,7 @@
 import unittest
-from pipeline_base import Processor, SerialBatchProcessor, ParallelBatchProcessor
-from pipeline_hof import FilterParallel, Filter, Map, MapParallel, Fold, FoldParallel
+from pipeline_base import Processor, SerialBatchProcessor
+from pipeline_hof import Filter, Map, Fold
+from pipeline_parallel import FilterParallel, FoldParallel, MapParallel, ParallelBatchProcessor
 import numpy as np
 
 class Square(Processor):
@@ -38,6 +39,9 @@ def add_one_batch(batch):
 def infinite_generator():
     while True:
         yield 1
+
+def add(x1,x2):
+    return x1+x2
 
 class SyntaxTest(unittest.TestCase):
     def test_pipe(self):
@@ -80,6 +84,7 @@ class HigherOrderFunctionTest(unittest.TestCase):
     def test_map(self):
         assert list([1,2] | Map(square) >> Map(square)  >> Map(add_one)) == [2,17]
 
+    @unittest.skip('Parallel functions are not yet stable')
     def test_imap(self):
         assert list([1,2] | MapParallel(square) >> MapParallel(square)  >> MapParallel(add_one)) == [2,17]
 
@@ -104,6 +109,7 @@ class HigherOrderFunctionTest(unittest.TestCase):
         output = data | Filter(is_odd)
         assert next(output) == 1
 
+    @unittest.skip('Parallel functions are not yet stable')
     def test_filter_parallel_infinite(self):
         data = infinite_generator()
         output = data | FilterParallel(is_odd)
@@ -111,7 +117,13 @@ class HigherOrderFunctionTest(unittest.TestCase):
 
     def test_fold(self):
         data = [0,1,2,3]
-        output = data | Fold(lambda x1,x2:x1+x2)
+        output = data | Fold(add)
+        assert output == 6
+
+    @unittest.skip('Parallel functions are not yet stable')
+    def test_fold_parallel(self):
+        data = [0,1,2,3]
+        output = data | FoldParallel(add)
         assert output == 6
 
 def parse_row( element):

@@ -1,7 +1,8 @@
 import unittest
 import datetime
 from pipeline_base import MapParallel
-from pipeline_hof import Map, MapParallel
+from pipeline_hof import Map
+from pipeline_parallel import MapParallel
 
 
 def time_consuming_function(x):
