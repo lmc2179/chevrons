@@ -1,5 +1,5 @@
-import sys
-sys.path.append('..')
+import os.path, sys
+sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
 import unittest
 from pipeline_base import PipelineBlock, SerialBatchProcessorBlock
 from pipeline_hof import Filter, Map, Fold
