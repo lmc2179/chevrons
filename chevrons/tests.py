@@ -1,23 +1,24 @@
 import unittest
-from pipeline_base import Processor, SerialBatchProcessor
+from pipeline_base import PipelineBlock, SerialBatchProcessorBlock
 from pipeline_hof import Filter, Map, Fold
-from pipeline_parallel import FilterParallel, FoldParallel, MapParallel, ParallelBatchProcessor
+from pipeline_parallel import FilterParallel, FoldParallel, MapParallel, ParallelBatchProcessorBlock
+from pipeline_extra import TrainScikitModel
 import numpy as np
 
-class Square(Processor):
+class Square(PipelineBlock):
     def run(self, input_data):
         return input_data ** 2
 
-class AddOne(Processor):
+class AddOne(PipelineBlock):
     def run(self, input_data):
         return input_data + 1
 
-class SwapInputs(Processor):
+class SwapInputs(PipelineBlock):
     def run(self, input_data):
         a,b = input_data
         return b,a
 
-class AddOneSerialBatch(SerialBatchProcessor):
+class AddOneSerialBatch(SerialBatchProcessorBlock):
     def _process_batch(self, input_batch):
         return [add_one(i) for i in input_batch]
 
@@ -72,12 +73,12 @@ class BaseComponentTest(unittest.TestCase):
     def test_batch_process_parallel(self):
         import itertools
         data = itertools.islice(infinite_generator(),0,1000)
-        output = data | ParallelBatchProcessor(add_one_batch) >> ParallelBatchProcessor(add_one_batch)
+        output = data | ParallelBatchProcessorBlock(add_one_batch) >> ParallelBatchProcessorBlock(add_one_batch)
         assert len(list(output)) == 1000
 
     def test_batch_process_parallel_infinite(self):
         data = infinite_generator()
-        output = data | ParallelBatchProcessor(add_one_batch) >> ParallelBatchProcessor(add_one_batch)
+        output = data | ParallelBatchProcessorBlock(add_one_batch) >> ParallelBatchProcessorBlock(add_one_batch)
         assert next(output) == 3
 
 class HigherOrderFunctionTest(unittest.TestCase):
@@ -138,3 +139,20 @@ class UseCaseTest(unittest.TestCase):
         input_file = csv.DictReader(open('test_data.csv'))
         run_data_pipeline = Map(parse_row) >> Map(sum_vectors)
         run_data_pipeline(input_file) == [4, 6]
+
+def can_import_scikit():
+    try:
+        import sklearn
+        return True
+    except:
+        return False
+
+@unittest.skipUnless(can_import_scikit(), 'no scikit learn, skipping test')
+class SciKitLearnTest(unittest.TestCase):
+    def test_model_training(self):
+        from sklearn.ensemble import RandomForestClassifier
+        X = [[0,0],[1,1],[0,0],[1,1],[0,0],[1,1],[0,0],[1,1],[0,0],[1,1]]
+        y = [0,1,0,1,0,1,0,1,0,1]
+        model = RandomForestClassifier()
+        list(zip(X,y) | TrainScikitModel(model, batch_size=2))
+        assert list(model.predict([[0,0], [1,1]])) == [0,1]

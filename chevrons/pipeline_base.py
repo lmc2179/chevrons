@@ -1,12 +1,12 @@
 import itertools
 
-class Processor(object):
+class PipelineBlock(object):
     def __ror__(self, other): # Other is used as an input
         return self.run(other)
 
     def __rshift__(self, other): # This function is composed with other
         inner_fxn = lambda x: other.run(self.run(x))
-        F = Processor()
+        F = PipelineBlock()
         F.run = inner_fxn
         return F
 
@@ -17,7 +17,7 @@ class Processor(object):
         raise NotImplementedError
 
 
-class AbstractBatchProcessor(Processor):
+class AbstractBatchProcessorBlock(PipelineBlock):
     def __init__(self, batch_size):
         self.batch_size = batch_size
 
@@ -47,7 +47,7 @@ class AbstractBatchProcessor(Processor):
             else:
                 return
 
-class SerialBatchProcessor(AbstractBatchProcessor):
+class SerialBatchProcessorBlock(AbstractBatchProcessorBlock):
     def _get_batch_transformation(self, batches):
         return (self._process_batch(b) for b in batches)
 

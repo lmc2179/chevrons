@@ -1,6 +1,6 @@
-from pipeline_base import Processor
+from pipeline_base import PipelineBlock
 
-class Filter(Processor):
+class Filter(PipelineBlock):
     def __init__(self, function):
         self.function = function
 
@@ -8,7 +8,7 @@ class Filter(Processor):
         return (element for element in input_data if self.function(element))
 
 
-class Fold(Processor):
+class Fold(PipelineBlock):
     def __init__(self, function):
         self.function = function
 
@@ -20,7 +20,7 @@ class Fold(Processor):
         return x
 
 
-class Map(Processor):
+class Map(PipelineBlock):
     def __init__(self, function):
         self.function = function
 
