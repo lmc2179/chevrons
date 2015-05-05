@@ -37,9 +37,9 @@ Complete example:
 ```
 # Example: Training a Scikit learn model on synthetic data
 import random
-from pipeline_base import Merge
-from pipeline_hof import Map
-from pipeline_extra import TrainScikitModel
+from chevrons.pipeline_base import Merge
+from chevrons.pipeline_hof import Map
+from chevrons.pipeline_extra import TrainScikitModel
 from sklearn.linear_model import LinearRegression
 
 def add_noise(data_point):
