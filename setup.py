@@ -3,7 +3,7 @@ from distutils.core import setup
 setup(
   name = 'chevrons',
   packages = ['chevrons'],
-  version = '0.1.1',
+  version = '0.1.2',
   description = 'Rapidly build pipelines for out-of-core data processing using higher order functions.',
   author = 'Louis Cialdella',
   author_email = 'louiscialdella@gmail.com',
