@@ -6,6 +6,7 @@
 
 Rapidly build pipelines for out-of-core data processing using higher order functions.
 
+**More documentation to come! This is still a very new project.**
 
 #What is this?
 
@@ -28,8 +29,6 @@ output2 = input_data2 | preprocess >> function_4
 The objects passed between functions are all generators/iterators, so output1 and output2 will be turned into generators which can be evaluated one element at a time (for example, written to a file or used to train a machine learning model).
 
 You can construct your own pieces of the pipeline by writing a subclass of one of the classes in `pipeline_base`, or perform `Map`, `Fold`, and `Reduce` by importing those blocks from `pipeline_hof`.
-
-More documentation to come! This is still a very new project.
 
 Please note that at the moment, `chevrons` only supports Python 3 and later.
 
