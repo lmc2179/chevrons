@@ -1,4 +1,4 @@
-from pipeline_base import SerialBatchProcessorBlock
+from chevrons.pipeline_base import SerialBatchProcessorBlock
 
 class SideEffectBlock(SerialBatchProcessorBlock):
     def __init__(self, return_data=True, batch_size=1):
