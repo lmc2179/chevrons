@@ -6,12 +6,13 @@
 
 Rapidly build pipelines for out-of-core data processing using higher order functions.
 
+**More documentation to come! This is still a very new project.**
 
 #What is this?
 
 `chevrons` is a collection of tools for building memory-efficient pipelines on iterators by composing functions. It introduces a clean syntax for passing data between functions which are composed.
 
-`chevrons` is perfect for situations where you can a lot of data that you want to process out-of-core, but not enough to warrant a "big data" solution. It lets you build pipeline components that can be composed, reordered, and reused easily. The name of the package comes from the syntax of these pipelines, which looks like this:
+`chevrons` is perfect for situations where you have a lot of data that you want to process out-of-core, but not enough to warrant a "big data" solution. It lets you build pipeline components that can be composed, reordered, and reused easily. The name of the package comes from the syntax of these pipelines, which looks like this:
 
 ```
 output = input_data | function_1 >> function_2 >> function_3
@@ -29,17 +30,15 @@ The objects passed between functions are all generators/iterators, so output1 an
 
 You can construct your own pieces of the pipeline by writing a subclass of one of the classes in `pipeline_base`, or perform `Map`, `Fold`, and `Reduce` by importing those blocks from `pipeline_hof`.
 
-More documentation to come! This is still a very new project.
-
 Please note that at the moment, `chevrons` only supports Python 3 and later.
 
 Complete example:
 ```
 # Example: Training a Scikit learn model on synthetic data
 import random
-from pipeline_base import Merge
-from pipeline_hof import Map
-from pipeline_extra import TrainScikitModel
+from chevrons.pipeline_base import Merge
+from chevrons.pipeline_hof import Map
+from chevrons.pipeline_extra import TrainScikitModel
 from sklearn.linear_model import LinearRegression
 
 def add_noise(data_point):
@@ -61,3 +60,7 @@ X | generate_synthetic_data >> TrainScikitModel(model, batch_size=100)
 ###Future updates planned:
 * Seamless paralellization of higher order function blocks
 * More blocks for Machine Learning and Data processing
+
+#Contact
+
+I'd love to hear any feedback you have, or ideas for features you think would be interesting! Send me an email at louiscialdella@gmail.com if you'd like to let me know of your happiness/displeasure/exuberance/vexation.
