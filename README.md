@@ -1,9 +1,5 @@
 # chevrons `>>`
 
-[![travis](https://travis-ci.org/lmc2179/chevrons.svg?branch=master)](https://travis-ci.org/lmc2179/chevrons)
-
-
-
 Rapidly build pipelines for out-of-core data processing using higher order functions.
 
 **More documentation to come! This is still a very new project.**
@@ -36,10 +32,10 @@ Complete example:
 ```
 # Example: Training a Scikit learn model on synthetic data
 import random
-from pipeline_base import Zip
-from pipeline_hof import Map
-from pipeline_extra import TrainScikitModel
-from sklearn.linear_model import LinearRegression
+from chevrons.pipeline_base import Zip
+from chevrons.pipeline_hof import Map
+from chevrons.pipeline_extra import TrainScikitModel
+from chevrons.sklearn.linear_model import LinearRegression
 
 def add_noise(data_point):
     return random.gauss(data_point, 1)
