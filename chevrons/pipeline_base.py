@@ -1,6 +1,7 @@
 import itertools
 
 class PipelineBlock(object):
+    "Most basic block which allows chevron syntax. Subclasses must implement run method."
     def __ror__(self, other): # Other is used as an input
         return self.run(other)
 
@@ -24,6 +25,7 @@ class Merge(PipelineBlock):
         return zip(self.iterator, input_data)
 
 class Zip(PipelineBlock):
+    "Zip the input streams together (similar to builtin zip() function)."
     def run(self, input_data):
         return zip(*input_data)
 

@@ -1,6 +1,9 @@
 from pipeline_base import PipelineBlock
 
 class Filter(PipelineBlock):
+    """
+    Filter out data through this block by checking the truth of the given function.
+    """
     def __init__(self, function):
         self.function = function
 
@@ -9,6 +12,9 @@ class Filter(PipelineBlock):
 
 
 class Fold(PipelineBlock):
+    """
+    Successively reduce inputs with the given binary function.
+    """
     def __init__(self, function):
         self.function = function
 
@@ -21,6 +27,9 @@ class Fold(PipelineBlock):
 
 
 class Map(PipelineBlock):
+    """
+    Map each item passing through this block using the given function.
+    """
     def __init__(self, function):
         self.function = function
 
