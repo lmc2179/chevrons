@@ -23,6 +23,10 @@ class Merge(PipelineBlock):
     def run(self, input_data):
         return zip(self.iterator, input_data)
 
+class Zip(PipelineBlock):
+    def run(self, input_data):
+        return zip(*input_data)
+
 class AbstractBatchProcessorBlock(PipelineBlock):
     def __init__(self, batch_size):
         self.batch_size = batch_size

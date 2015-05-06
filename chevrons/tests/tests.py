@@ -1,7 +1,8 @@
 import os.path, sys
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
 import unittest
-from pipeline_base import PipelineBlock, SerialBatchProcessorBlock
+import itertools
+from pipeline_base import PipelineBlock, SerialBatchProcessorBlock, Zip
 from pipeline_hof import Filter, Map, Fold
 from pipeline_parallel import FilterParallel, FoldParallel, MapParallel, ParallelBatchProcessorBlock
 from pipeline_extra import TrainScikitModel
@@ -43,6 +44,10 @@ def infinite_generator():
     while True:
         yield 1
 
+def infinite_generator_2():
+    while True:
+        yield 2
+
 def add(x1,x2):
     return x1+x2
 
@@ -73,7 +78,6 @@ class BaseComponentTest(unittest.TestCase):
         assert next(output) == 3
 
     def test_batch_process_parallel(self):
-        import itertools
         data = itertools.islice(infinite_generator(),0,1000)
         output = data | ParallelBatchProcessorBlock(add_one_batch) >> ParallelBatchProcessorBlock(add_one_batch)
         assert len(list(output)) == 1000
@@ -82,6 +86,12 @@ class BaseComponentTest(unittest.TestCase):
         data = infinite_generator()
         output = data | ParallelBatchProcessorBlock(add_one_batch) >> ParallelBatchProcessorBlock(add_one_batch)
         assert next(output) == 3
+
+    def test_zip(self):
+        input_1 = itertools.islice(infinite_generator(),0,1000)
+        input_2 = itertools.islice(infinite_generator_2(),0,1000)
+        output = (input_1,input_2) | Zip()
+        assert next(output) == (1,2)
 
 class HigherOrderFunctionTest(unittest.TestCase):
     def test_map(self):
