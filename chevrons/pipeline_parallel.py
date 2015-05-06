@@ -3,6 +3,9 @@ Pipeline objects with built-in parallelism. These classes are not yet stable.
 """
 import functools
 from multiprocessing.pool import Pool
+import threading
+import itertools
+    
 from chevrons.pipeline_base import PipelineBlock, AbstractBatchProcessorBlock
 
 class ParallelBatchProcessorBlock(AbstractBatchProcessorBlock):
@@ -50,13 +53,56 @@ class _FilterFunctionClosure(object):
 
 
 class MapParallel(PipelineBlock):
-    def __init__(self, function, n_processes=None, batch_size=1):
-        self.function = function
+    def __init__(self, function, n_processes=None):
+        self.function = _MapFunctionClosure(function)
         self.pool = Pool(processes=n_processes)
+
+    def run(self, input_data):
+        return self.pool.imap(self.function, input_data, chunksize=1)
+
+class _MapFunctionClosure(object):
+    def __init__(self, function):
+        self.function = function
+
+    def __call__(self, *args, **kwargs):
+        return [self.function(element) for element in args[0]]
+
+
+def locked_iter(it):
+    it = iter(it)
+    lock = threading.Lock()
+    while 1:
+        try:
+            with lock:
+                value = next(it)
+        except StopIteration:
+            return
+        yield value
+
+class MakeThreadSafeBatches(PipelineBlock):
+    def __init__(self, batch_size):
         self.batch_size = batch_size
 
     def run(self, input_data):
-        return self.pool.imap(self.function, input_data, chunksize=self.batch_size)
+        return locked_iter(self._make_batches_from_iter(input_data, self.batch_size))
+
+    def _make_batches_from_iter(self, data, batch_size):
+        iterator = iter(data)
+        while True:
+            batch = list(itertools.islice(iterator, batch_size))
+            if batch:
+                yield batch
+            else:
+                return
+
+class Unbatch(PipelineBlock):
+    def run(self, input_data):
+        return self._flatten_iterator(input_data)
+
+    def _flatten_iterator(self, iterator):
+        for batch in iterator:
+            for element in batch:
+                yield element
 
 import warnings
 warnings.warn('pipeline_parallel.py: These classes are not yet stable. Use at your own risk.')
