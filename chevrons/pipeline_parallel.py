@@ -57,3 +57,6 @@ class MapParallel(PipelineBlock):
 
     def run(self, input_data):
         return self.pool.imap(self.function, input_data, chunksize=self.batch_size)
+
+import warnings
+warnings.warn('pipeline_parallel.py: These classes are not yet stable. Use at your own risk.')
