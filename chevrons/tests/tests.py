@@ -97,6 +97,11 @@ class HigherOrderFunctionTest(unittest.TestCase):
     def test_map(self):
         assert list([1,2] | Map(square) >> Map(square)  >> Map(add_one)) == [2,17]
 
+    def test_reuse(self):
+        square_map = Map(square) >> Map(square)
+        assert list([1,2] | square_map >> Map(add_one)) == [2,17]
+        assert list([1,2] | square_map >> Map(add_one)) == [2,17]
+
     @unittest.skip('Parallel functions are not yet stable')
     def test_imap(self):
         assert list([1,2] | MapParallel(square) >> MapParallel(square)  >> MapParallel(add_one)) == [2,17]
