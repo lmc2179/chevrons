@@ -1,9 +1,9 @@
-from distutils.core import setup
+import chevrons
+from setuptools import setup, find_packages
 
 setup(
   name = 'chevrons',
-  packages = ['chevrons'],
-  py_modules = ['chevrons.pipeline_base','chevrons.pipeline_hof', 'chevrons.pipeline_extra'],
+  packages = find_packages(), 
   version = '0.1.2.3',
   description = 'Rapidly build pipelines for out-of-core data processing using higher order functions.',
   author = 'Louis Cialdella',
