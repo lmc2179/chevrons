@@ -3,7 +3,7 @@ Pipeline objects with built-in parallelism. These classes are not yet stable.
 """
 import functools
 from multiprocessing.pool import Pool
-from pipeline_base import PipelineBlock, AbstractBatchProcessorBlock
+from chevrons.pipeline_base import PipelineBlock, AbstractBatchProcessorBlock
 
 class ParallelBatchProcessorBlock(AbstractBatchProcessorBlock):
     def __init__(self, function, batch_size=1, n_process=None):
