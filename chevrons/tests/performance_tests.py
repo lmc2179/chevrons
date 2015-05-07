@@ -18,7 +18,7 @@ class PerformanceTest(unittest.TestCase):
         list(output)
         single_thread_time = datetime.datetime.now() - begin
         begin = datetime.datetime.now()
-        output = data1 | MakeThreadSafeBatches(5000) >> MapParallel(time_consuming_function, n_processes=None) >> MapParallel(time_consuming_function, n_processes=None)
+        output = data1 | MakeThreadSafeBatches(5000) >> MapParallel(time_consuming_function) >> MapParallel(time_consuming_function)
         list(output)
         multi_thread_time = datetime.datetime.now() - begin
         print('MULTITHREAD, SINGLETHREAD')

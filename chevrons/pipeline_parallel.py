@@ -18,13 +18,16 @@ class ParallelBatchProcessorBlock(AbstractBatchProcessorBlock):
         return self.pool.imap(self.function, batches, chunksize=self.batch_size)
 
 
-class FilterParallel(ParallelBatchProcessorBlock):
-    def __init__(self, function, batch_size=1, n_process=None):
-        filter_function = self._construct_filter_function(function)
-        super(FilterParallel, self).__init__(filter_function, batch_size=batch_size, n_process=n_process)
+class FilterParallel(PipelineBlock):
+    def __init__(self, function, n_process=None):
+        self.function = self._construct_filter_function(function)
+        self.pool = Pool(processes=n_process)
 
     def _construct_filter_function(self, function):
         return _FilterFunctionClosure(function)
+
+    def run(self, input_data):
+        return self.pool.imap(self.function, input_data, chunksize=1)
 
 
 class _FoldFunctionClosure(object):

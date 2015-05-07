@@ -115,10 +115,9 @@ class HigherOrderFunctionTest(unittest.TestCase):
         output = data | Filter(is_even)
         assert list(output) == [0,2,4,6,8]
 
-    @unittest.skip('Parallel functions are not ready')
     def test_filter_parallel(self):
         data = [0,1,2,3,4,5,6,7,8,9]
-        output = data | FilterParallel(is_even, batch_size=2)
+        output = data | MakeThreadSafeBatches(1) >> FilterParallel(is_even) >> Unbatch()
         assert list(output) == [0,2,4,6,8]
 
     def test_filter_infinite(self):
@@ -127,10 +126,9 @@ class HigherOrderFunctionTest(unittest.TestCase):
         output = data | Filter(is_odd)
         assert next(output) == 1
 
-    @unittest.skip('Parallel functions are not yet stable')
     def test_filter_parallel_infinite(self):
         data = infinite_generator()
-        output = data | FilterParallel(is_odd)
+        output = data |  MakeThreadSafeBatches(1) >> FilterParallel(is_odd) >> Unbatch()
         assert next(output) == 1
 
     def test_fold(self):
