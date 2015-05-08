@@ -2,7 +2,7 @@ import os.path, sys
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
 import unittest
 import itertools
-from pipeline_base import PipelineBlock, SerialBatchProcessorBlock, Zip
+from pipeline_base import PipelineBlock, Zip
 from pipeline_hof import Filter, Map, Fold
 from pipeline_parallel import FilterParallel, FoldParallel, MapParallel, ParallelBatchProcessorBlock, MakeThreadSafeBatches, Unbatch
 from pipeline_extra import TrainScikitModel
@@ -20,10 +20,6 @@ class SwapInputs(PipelineBlock):
     def run(self, input_data):
         a,b = input_data
         return b,a
-
-class AddOneSerialBatch(SerialBatchProcessorBlock):
-    def _process_batch(self, input_batch):
-        return [add_one(i) for i in input_batch]
 
 def square(x):
         return x ** 2
@@ -66,17 +62,6 @@ class SyntaxTest(unittest.TestCase):
         assert ((1,2) | SwapInputs()) == (2,1)
 
 class BaseComponentTest(unittest.TestCase):
-    def test_batch_process(self):
-        import itertools
-        data = itertools.islice(infinite_generator(),0,1000)
-        output = data | AddOneSerialBatch(100) >> AddOneSerialBatch(100)
-        assert len(list(output)) == 1000
-
-    def test_batch_process_infinite(self):
-        data = infinite_generator()
-        output = data | AddOneSerialBatch(100) >> AddOneSerialBatch(100)
-        assert next(output) == 3
-
     def test_batch_process_parallel(self):
         data = itertools.islice(infinite_generator(),0,1000)
         output = data | ParallelBatchProcessorBlock(add_one_batch) >> ParallelBatchProcessorBlock(add_one_batch)
@@ -148,7 +133,6 @@ def parse_row( element):
 def sum_vectors(input_1, input_2):
         return input_1 + input_2
 
-@unittest.skip('')
 class UseCaseTest(unittest.TestCase):
     def test_end_to_end(self):
         import csv
