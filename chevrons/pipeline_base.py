@@ -17,13 +17,6 @@ class PipelineBlock(object):
     def run(self, input_data):
         raise NotImplementedError
 
-class Merge(PipelineBlock):
-    def __init__(self, iterator):
-        self.iterator = iterator
-
-    def run(self, input_data):
-        return zip(self.iterator, input_data)
-
 class Zip(PipelineBlock):
     "Zip the input streams together (similar to builtin zip() function)."
     def run(self, input_data):
