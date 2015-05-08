@@ -1,6 +1,6 @@
 import unittest
 import datetime
-from pipeline_parallel import MapParallel, MakeThreadSafeBatches
+from pipeline_parallel import MapParallel, BeginParallel
 from pipeline_hof import Map
 from pipeline_parallel import MapParallel
 
@@ -18,7 +18,7 @@ class PerformanceTest(unittest.TestCase):
         list(output)
         single_thread_time = datetime.datetime.now() - begin
         begin = datetime.datetime.now()
-        output = data1 | MakeThreadSafeBatches(5000) >> MapParallel(time_consuming_function) >> MapParallel(time_consuming_function)
+        output = data1 | BeginParallel(5000) >> MapParallel(time_consuming_function) >> MapParallel(time_consuming_function)
         list(output)
         multi_thread_time = datetime.datetime.now() - begin
         print('MULTITHREAD, SINGLETHREAD')

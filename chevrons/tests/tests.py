@@ -4,7 +4,7 @@ import unittest
 import itertools
 from pipeline_base import PipelineBlock, Zip
 from pipeline_hof import Filter, Map, Fold
-from pipeline_parallel import FilterParallel, FoldParallel, MapParallel, ParallelBatchProcessorBlock, MakeThreadSafeBatches, Unbatch
+from pipeline_parallel import FilterParallel, FoldParallel, MapParallel, BeginParallel, EndParallel
 from pipeline_extra import TrainScikitModel
 import numpy as np
 
@@ -62,16 +62,6 @@ class SyntaxTest(unittest.TestCase):
         assert ((1,2) | SwapInputs()) == (2,1)
 
 class BaseComponentTest(unittest.TestCase):
-    def test_batch_process_parallel(self):
-        data = itertools.islice(infinite_generator(),0,1000)
-        output = data | ParallelBatchProcessorBlock(add_one_batch) >> ParallelBatchProcessorBlock(add_one_batch)
-        assert len(list(output)) == 1000
-
-    def test_batch_process_parallel_infinite(self):
-        data = infinite_generator()
-        output = data | ParallelBatchProcessorBlock(add_one_batch) >> ParallelBatchProcessorBlock(add_one_batch)
-        assert next(output) == 3
-
     def test_zip(self):
         input_1 = itertools.islice(infinite_generator(),0,1000)
         input_2 = itertools.islice(infinite_generator_2(),0,1000)
@@ -88,7 +78,7 @@ class HigherOrderFunctionTest(unittest.TestCase):
         assert list([1,2] | square_map >> Map(add_one)) == [2,17]
 
     def test_imap(self):
-        assert list([1,2] | MakeThreadSafeBatches(1) >> MapParallel(square) >> MapParallel(square)  >> MapParallel(add_one) >> Unbatch()) == [2,17]
+        assert list([1,2] | BeginParallel(1) >> MapParallel(square) >> MapParallel(square)  >> MapParallel(add_one) >> EndParallel()) == [2,17]
 
     def test_map_infinite(self):
         data = infinite_generator()
@@ -102,7 +92,7 @@ class HigherOrderFunctionTest(unittest.TestCase):
 
     def test_filter_parallel(self):
         data = [0,1,2,3,4,5,6,7,8,9]
-        output = data | MakeThreadSafeBatches(1) >> FilterParallel(is_even) >> Unbatch()
+        output = data | BeginParallel(1) >> FilterParallel(is_even) >> EndParallel()
         assert list(output) == [0,2,4,6,8]
 
     def test_filter_infinite(self):
@@ -113,7 +103,7 @@ class HigherOrderFunctionTest(unittest.TestCase):
 
     def test_filter_parallel_infinite(self):
         data = infinite_generator()
-        output = data |  MakeThreadSafeBatches(1) >> FilterParallel(is_odd) >> Unbatch()
+        output = data |  BeginParallel(1) >> FilterParallel(is_odd) >> EndParallel()
         assert next(output) == 1
 
     def test_fold(self):
@@ -121,10 +111,9 @@ class HigherOrderFunctionTest(unittest.TestCase):
         output = data | Fold(add)
         assert output == 6
 
-    @unittest.skip('Parallel functions are not yet stable')
     def test_fold_parallel(self):
         data = [0,1,2,3]
-        output = data | FoldParallel(add)
+        output = data | BeginParallel(1) >> FoldParallel(add)
         assert output == 6
 
 def parse_row( element):

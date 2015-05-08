@@ -7,16 +7,7 @@ import threading
 import itertools
     
 from chevrons.pipeline_base import PipelineBlock, AbstractBatchProcessorBlock
-
-class ParallelBatchProcessorBlock(AbstractBatchProcessorBlock):
-    def __init__(self, function, batch_size=1, n_process=None):
-        super(ParallelBatchProcessorBlock, self).__init__(batch_size)
-        self.pool = Pool(processes=n_process)
-        self.function = function
-
-    def _get_batch_transformation(self, batches):
-        return self.pool.imap(self.function, batches, chunksize=self.batch_size)
-
+from chevrons.pipeline_hof import Fold
 
 class FilterParallel(PipelineBlock):
     def __init__(self, function, n_process=None):
@@ -38,13 +29,24 @@ class _FoldFunctionClosure(object):
         return functools.reduce(self.function, args[0])
 
 
-class FoldParallel(ParallelBatchProcessorBlock):
-    def __init__(self, function, batch_size=1, n_process=None):
-        fold_function = self._construct_fold_function(function)
-        super(FoldParallel, self).__init__(fold_function,batch_size=batch_size, n_process=n_process)
+class FoldParallel(PipelineBlock):
+    def __init__(self, function, n_process=None):
+        self.function = function
+        self.pool = Pool(processes=n_process)
 
     def _construct_fold_function(self, function):
         return _FoldFunctionClosure(function)
+
+    def run(self, input_data):
+        batch_function = self._construct_fold_function(self.function)
+        return self._fold_stream(self.pool.imap(batch_function, input_data, chunksize=1))
+
+    def _fold_stream(self, input_data):
+        input_iter = iter(input_data)
+        x = next(input_iter)
+        for element in input_iter:
+            x = self.function(x, element)
+        return x
 
 
 class _FilterFunctionClosure(object):
@@ -82,7 +84,7 @@ def locked_iter(it):
             return
         yield value
 
-class MakeThreadSafeBatches(PipelineBlock):
+class BeginParallel(PipelineBlock):
     def __init__(self, batch_size):
         self.batch_size = batch_size
 
@@ -98,7 +100,7 @@ class MakeThreadSafeBatches(PipelineBlock):
             else:
                 return
 
-class Unbatch(PipelineBlock):
+class EndParallel(PipelineBlock):
     def run(self, input_data):
         return self._flatten_iterator(input_data)
 
