@@ -6,8 +6,7 @@ from multiprocessing.pool import Pool
 import threading
 import itertools
     
-from chevrons.pipeline_base import PipelineBlock, AbstractBatchProcessorBlock
-from chevrons.pipeline_hof import Fold
+from pipeline_base import PipelineBlock
 
 class FilterParallel(PipelineBlock):
     def __init__(self, function, n_process=None):

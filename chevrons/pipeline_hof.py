@@ -1,4 +1,4 @@
-from chevrons.pipeline_base import PipelineBlock
+from pipeline_base import PipelineBlock
 
 class Filter(PipelineBlock):
     """
