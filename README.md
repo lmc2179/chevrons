@@ -35,7 +35,7 @@ import random
 from chevrons.pipeline_base import Zip
 from chevrons.pipeline_hof import Map
 from chevrons.pipeline_extra import TrainScikitModel
-from chevrons.sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LinearRegression
 
 def add_noise(data_point):
     return random.gauss(data_point, 1)
