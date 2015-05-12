@@ -11,7 +11,7 @@ Rapidly build pipelines for out-of-core data processing using higher order funct
 
 #What is this?
 
-`chevrons` is a collection of tools for building memory-efficient pipelines on iterators by composing functions. It introduces a clean syntax for passing data between functions which are composed. 
+`chevrons` is a collection of tools for building memory-efficient pipelines on iterators by composing functions. It introduces a clean syntax for passing data between functions which are composed. Data passing through each part of the pipeline is evaluated lazily, making it easy to work with very large (or infinite) streams of data in settings with limited resources.
 
 `chevrons` is perfect for situations where you have a lot of data that you want to process out-of-core, but not enough to warrant a "big data" solution. It lets you build pipeline components that can be composed, reordered, and reused easily. The name of the package comes from the syntax of these pipelines, which looks like this:
 
