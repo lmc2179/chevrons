@@ -28,9 +28,14 @@ You can construct your own pieces of the pipeline by writing a subclass of one o
 
 Please note that at the moment, `chevrons` only supports Python 3 and later.
 
-Complete example:
+#Building Pipelines with Chevrons
+
+#Higher order Functions
+
+#Drop-in parallelism for Higher-order function blocks
+
+#Example: Training a Scikit learn model on synthetic data
 ```
-# Example: Training a Scikit learn model on synthetic data
 import random
 from chevrons.pipeline_base import Zip
 from chevrons.pipeline_hof import Map
