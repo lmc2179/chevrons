@@ -33,8 +33,6 @@ You can construct your own pieces of the pipeline by writing a subclass of one o
 
 Please note that at the moment, `chevrons` only supports Python 3 and later.
 
-#Building Pipelines with Chevrons
-
 #Higher order Functions
 
 #Parallelism
