@@ -8,6 +8,8 @@ Rapidly build pipelines for out-of-core data processing using higher order funct
 * [What is this?](#what-is-this)
 * [Higher order Functions](#higher-order-functions)
 * [Parallelism](#parallelism)
+* [Implementing Your Own Pipeline Pieces](#implementing-your-own-pipeline-pieces)
+* [Example: Training a Scikit learn model on synthetic data](#example-training-a-scikit-learn-model-on-synthetic-data)
 
 #What is this?
 
@@ -35,14 +37,49 @@ Please note that at the moment, `chevrons` only supports Python 3 and later.
 
 #Higher order Functions
 
+Currently, the `Map`, `Fold` and `Reduce` functions are included as pipeline components. For a quick introduction to these functions and how they work, check out [this page](http://www.cse.unsw.edu.au/~en1000/haskell/hof.html).
+
+Each one takes a helper function which is user defined. For example, take the following (contrived) pipeline, which sums up the square roots of all inputs which are multiples of three:
+
+```
+from chevrons.pipeline_hof import Map, Filter, Fold
+import math
+
+def is_multiple_of_three(x):
+    return x % 3 == 0
+    
+def add(x1,x2):
+    return x1+x2
+    
+data = range(0,10)
+
+sum_sqrt_threes = data | Filter(is_multiple_of_three) >> Map(math.sqrt) >> Fold(add)
+```
+
 #Parallelism
+
+*Note: Parallel processing is still in beta - while these classes are stable enough for most use cases, please report any bugs that you find.*
+
+One advantage of structuring computation as higher-order functions is that they are extremely easy to parallelize effectively. It's easy to make pipeline elements parallel using `chevrons`! The `pipeline_parallel` module defines pipeline pieces for running things in parallel. Note that all consecutive parallel elements should begin with a `BeginParallel` block and end with an `EndParallel` block or a `FoldParallel` block. The `BeginParallel` will take a batch size, which will be used throughout the pipeline. We can rewrite the above pipeline example to utilize parallelization very easily:
+
+```
+from chevrons.pipeline_parallel import MapParallel, FilterParallel, FoldParallel, BeginParallel, EndParallel
+
+data = range(0,10)
+
+data | BeginParallel(5) >> FilterParallel(is_multiple_of_three) >> MapParallel(math.sqrt) >> FoldParallel(add)
+```
+
+For pipelines where the individual functions are very computationally intensive, this can lead to very significant speedups when the correct batch size is chosen.
+
+#Implementing Your Own Pipeline Pieces
 
 #Example: Training a Scikit learn model on synthetic data
 ```
 import random
 from chevrons.pipeline_base import Zip
 from chevrons.pipeline_hof import Map
-from chevrons.pipeline_extra import TrainScikitModel
+from chevrons.pipe line_extra import TrainScikitModel
 from sklearn.linear_model import LinearRegression
 
 def add_noise(data_point):
