@@ -2,8 +2,6 @@
 
 Rapidly build pipelines for out-of-core data processing using higher order functions.
 
-**More documentation to come! This is still a very new project.**
-
 ## Table of Contents
 * [What is this?](#what-is-this)
 * [Higher order Functions](#higher-order-functions)
